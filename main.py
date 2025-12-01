@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from crewai import Agent, Task, Crew
 from crewai.tools import BaseTool
 
+# environment, copy .env.example to .env and adjust before running
 load_dotenv()
 
 
@@ -30,16 +31,15 @@ class KubectlTool(BaseTool):
 
 def main():
     # Setup LLM
-    llm_provider = os.getenv("LLM_PROVIDER", "ollama")
-    
+    llm_provider = os.getenv("LLM_PROVIDER")
     if llm_provider == "ollama":
-        os.environ["OLLAMA_API_BASE"] = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-        llm = f"ollama/{os.getenv('OLLAMA_MODEL', 'llama2')}"
+        os.environ["OLLAMA_API_BASE"] = os.getenv("OLLAMA_BASE_URL")
+        llm = f"ollama/{os.getenv('OLLAMA_MODEL')}"
     elif llm_provider == "openrouter":
-        os.environ["OPENROUTER_API_KEY"] = os.getenv("OPENROUTER_API_KEY", "")
-        llm = f"openrouter/{os.getenv('OPENROUTER_MODEL', 'anthropic/claude-3-sonnet')}"
+        os.environ["OPENROUTER_API_KEY"] = os.getenv("OPENROUTER_API_KEY")
+        llm = f"openrouter/{os.getenv('OPENROUTER_MODEL')}"
     else:
-        llm = None
+        raise NotImplementedError()
     
     # Create agent
     agent = Agent(

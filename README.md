@@ -35,26 +35,24 @@ Agent: Analyzing resource usage... Top consumer: api-server (65% CPU)
 
 ## Installation
 
-### 1. uv
+### uv
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-### 2. Local Kubernetes
+### Local Kubernetes
 
 ```bash
 kind create cluster --name agent-cluster
 ```
 
-### 3. Set Up Ollama (Local LLM) if needed
+### Set Up Ollama (Local LLM) if needed or connect to OpenRouter
 
 ```bash
 # Run Ollama in Docker
 docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
-
-# Pull a model
-docker exec -it ollama ollama pull llama2
+docker exec -it ollama ollama pull qwn
 ```
 
 ### 4. Install Project Dependencies
@@ -64,10 +62,7 @@ uv sync
 ```
 
 ## TODO
-
-- Set up basic CrewAI agent with kubectl execution capability
-- Add OpenRouter for LLM
-- Create terminal chat interface with CrewAI
+- Define a more complex cluster with some configs
 - Add pod monitoring and health check functions (prometheus, grafana)
 - Implement service deployment capabilities (yaml conigs, kubectl apply)
 - Test with Kind local cluster
