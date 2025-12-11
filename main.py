@@ -1,15 +1,22 @@
 import os
 import subprocess
 from dotenv import load_dotenv
+
+# agentic stuff
 from crewai import Agent, Task, Crew
 from crewai.tools import BaseTool
 from pydantic import BaseModel, Field
 
 load_dotenv()
 
-VERBOSE = False  # Set to False for clean output with just user and agent
+# take from env for easy switching
+VERBOSE = os.getenv("VERBOSE", "False")
+
 if VERBOSE:
     tracing = True
+
+KEEP_MESSAGES = int(os.getenv("KEEP_MESSAGES", 5))
+KEEP_FULL_OUTPUTS = int(os.getenv("KEEP_FULL_OUTPUTS", 2))
 
 # Memory settings
 KEEP_MESSAGES = 5  # How many old messages to show as context

@@ -1,3 +1,5 @@
+# simple tester to load the echo service with concurrent requests
+
 import asyncio
 import aiohttp
 import time
@@ -52,14 +54,12 @@ def print_stats(results):
     latencies = [r['latency'] for r in results]
     successful = [r for r in results if r['status'] == 200]
     
-    print("\n--- Load Test Statistics ---")
+    print("\nTest stats")
     print(f"Total Requests: {len(results)}")
     print(f"Successful Requests: {len(successful)}")
     print(f"Average Latency: {statistics.mean(latencies):.4f}s")
-    print(f"Median Latency: {statistics.median(latencies):.4f}s")
     print(f"Min Latency: {min(latencies):.4f}s")
     print(f"Max Latency: {max(latencies):.4f}s")
-    print(f"P95 Latency: {statistics.quantiles(latencies, n=20)[18]:.4f}s") # 19th cut of 20 quantiles is 95%
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Load test the echo service.")

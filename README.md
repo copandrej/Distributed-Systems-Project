@@ -9,16 +9,16 @@ Agent can execute kubectl commands, monitor cluster health, and manage services 
 ## Architecture
 
 - **Agent Framework**: CrewAI for agent orchestration
-- **LLM Provider**: Configurable probably openrouter with some free model
+- **LLM Provider**: Configurable, Probably openrouter with some free model or Ollama for local LLM
 - **Kubernetes**: Local cluster using Kind + kubectl command execution
 - **Interface**: Terminal-based chatbot for user interaction
-- **Implementation**: Simple Python app, uv for dependencies, modular.
+- **Implementation**: Simple Python app, uv for dependencies, modular, easy to extend as we will need for the master's thesis project later
 
-- Python 3.12+
+- Python 3.12
 - Docker
 - kubectl CLI
-- Kind (Kubernetes in Docker)
-- uv (Python package manager)
+- Kind (Kubernetes in Docker), or any Kubernetes cluster with kubectl access
+- uv (Python package manager), or pip
 
 
 ## Example interactions:
@@ -26,11 +26,11 @@ Agent can execute kubectl commands, monitor cluster health, and manage services 
 You: Check the health of all pods in the cluster
 Agent: Running health check... Found 5 pods, 4 running, 1 pending...
 
-You: Deploy a nginx service with 3 replicas
+You: Deploy an example hello world nginx service
 Agent: Creating deployment... Deployment successful!
 
-You: What's consuming the most CPU?
-Agent: Analyzing resource usage... Top consumer: api-server (65% CPU)
+You: Increase the replicas of the nginx service to 3
+Agent: Scaling deployment... Now 3 replicas running.
 ```
 
 ## Installation
@@ -40,6 +40,9 @@ Agent: Analyzing resource usage... Top consumer: api-server (65% CPU)
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
+
+If you dont want to use uv, you can install dependencies with pip from pyproject.toml
+
 
 ### Local Kubernetes
 
@@ -54,10 +57,10 @@ kind create cluster --name agent-cluster --config kind-config.yaml
 ```bash
 # Run Ollama in Docker
 docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
-docker exec -it ollama ollama pull qwn
+docker exec -it ollama ollama pull qwen3:8b
 ```
 
-### 4. Install Project Dependencies
+### 4. Install Project Dependencies, or use pip
 
 ```bash
 uv sync
@@ -96,15 +99,10 @@ A simple FastAPI service is included in `echo_service/` to test the agent's depl
    curl -X POST "http://localhost:30080/echo" -d '{"test": "data"}'
    ```
 
-## TODO
-- Define a more complex cluster with some configs
-- Add pod monitoring and health check functions (prometheus, grafana)
-- Implement service deployment capabilities (yaml conigs, kubectl apply)
-- Test with Kind local cluster
-
-## References
+## References and technologies used
 
 - [CrewAI Documentation](https://docs.crewai.com/)
 - [Ollama](https://ollama.ai/)
 - [Kind Documentation](https://kind.sigs.k8s.io/)
-- [uv Package Manager](https://github.com/astral-sh/uv)
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [uvicorn](https://www.uvicorn.org/)
