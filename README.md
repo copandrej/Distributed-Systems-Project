@@ -114,6 +114,18 @@ A simple FastAPI service is included in `echo_service/` to test the agent's depl
 
 Tell the agent to increase the number of replicas of the echo service and run the load test again to see the performance improvement.
 
+## Repository Structure
+
+- `main.py`: The entry point for the AI agent. It initializes the CrewAI agent and handles the chat loop.
+- `load_test.py`: An asynchronous script to stress-test deployed services and measure latency.
+- `echo_service/`: Contains the source code for a test workload (FastAPI app) that simulates computational work.
+  - `main.py`: The application code performing matrix multiplication.
+  - `Dockerfile`: Instructions to containerize the service.
+  - `deployment.yaml`: Kubernetes manifests for deploying the service.
+- `kind-config.yaml`: Configuration for the local Kind cluster to map ports to localhost.
+- `pyproject.toml`: Defines project dependencies and python version.
+
+
 ## References and technologies used
 
 - [CrewAI Documentation](https://docs.crewai.com/)
