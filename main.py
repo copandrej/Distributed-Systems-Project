@@ -12,8 +12,6 @@ load_dotenv()
 # take from env for easy switching
 VERBOSE = os.getenv("VERBOSE", "False")
 
-if VERBOSE:
-    tracing = True
 
 KEEP_MESSAGES = int(os.getenv("KEEP_MESSAGES", 5))
 KEEP_FULL_OUTPUTS = int(os.getenv("KEEP_FULL_OUTPUTS", 2))
@@ -61,7 +59,8 @@ def main():
         os.environ["OPENROUTER_API_KEY"] = os.getenv("OPENROUTER_API_KEY")
         llm = f"openrouter/{os.getenv('OPENROUTER_MODEL')}"
     else:
-        raise NotImplementedError()
+        print("Please configure the project in .env file first")
+        os._exit(42)
     
     agent = Agent(
         role="Kubernetes Assistant",
