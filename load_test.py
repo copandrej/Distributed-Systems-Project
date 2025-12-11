@@ -45,26 +45,36 @@ async def run_load_test(total_requests, concurrency):
         
     return results
 
-def save_results(results, filename="latency_results.json"):
+def save_results(data, filename="latency_results.json"):
     with open(filename, "w") as f:
-        json.dump(results, f, indent=2)
+        json.dump(data, f, indent=2)
     print(f"Results saved to {filename}")
 
 def print_stats(results):
     latencies = [r['latency'] for r in results]
     successful = [r for r in results if r['status'] == 200]
     
+    stats = {
+        "total_requests": len(results),
+        "successful_requests": len(successful),
+        "average_latency": statistics.mean(latencies) if latencies else 0,
+        "min_latency": min(latencies) if latencies else 0,
+        "max_latency": max(latencies) if latencies else 0
+    }
+
     print("\nTest stats")
-    print(f"Total Requests: {len(results)}")
-    print(f"Successful Requests: {len(successful)}")
-    print(f"Average Latency: {statistics.mean(latencies):.4f}s")
-    print(f"Min Latency: {min(latencies):.4f}s")
-    print(f"Max Latency: {max(latencies):.4f}s")
+    print(f"Total Requests: {stats['total_requests']}")
+    print(f"Successful Requests: {stats['successful_requests']}")
+    print(f"Average Latency: {stats['average_latency']:.4f}s")
+    print(f"Min Latency: {stats['min_latency']:.4f}s")
+    print(f"Max Latency: {stats['max_latency']:.4f}s")
+    
+    return stats
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Load test the echo service.")
-    parser.add_argument("--requests", type=int, default=100, help="Total number of requests")
-    parser.add_argument("--concurrency", type=int, default=10, help="Concurrent requests")
+    parser.add_argument("--requests", type=int, default=20, help="Total number of requests")
+    parser.add_argument("--concurrency", type=int, default=5, help="Concurrent requests")
     parser.add_argument("--output", type=str, default="latency_results.json", help="Output file for results")
     args = parser.parse_args()
 
@@ -73,5 +83,17 @@ if __name__ == "__main__":
     total_duration = time.time() - start_time
     
     print(f"\nTotal Test Duration: {total_duration:.2f}s")
-    print_stats(results)
-    save_results(results, args.output)
+    stats = print_stats(results)
+    
+    output_data = {
+        "config": {
+            "requests": args.requests,
+            "concurrency": args.concurrency,
+            "url": URL
+        },
+        "summary": stats,
+        "total_duration": total_duration,
+        "raw_results": results
+    }
+    
+    save_results(output_data, args.output)

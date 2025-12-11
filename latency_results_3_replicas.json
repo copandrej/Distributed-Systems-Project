@@ -1,0 +1,137 @@
+{
+  "config": {
+    "requests": 20,
+    "concurrency": 5,
+    "url": "http://localhost:30080/echo"
+  },
+  "summary": {
+    "total_requests": 20,
+    "successful_requests": 20,
+    "average_latency": 3.2819881796836854,
+    "min_latency": 1.510857343673706,
+    "max_latency": 6.164410352706909
+  },
+  "total_duration": 16.060471296310425,
+  "raw_results": [
+    {
+      "request_id": 0,
+      "start_time": 1765482695.8612044,
+      "latency": 6.164410352706909,
+      "status": 200
+    },
+    {
+      "request_id": 1,
+      "start_time": 1765482695.8628,
+      "latency": 2.0431764125823975,
+      "status": 200
+    },
+    {
+      "request_id": 2,
+      "start_time": 1765482695.8629923,
+      "latency": 4.358643054962158,
+      "status": 200
+    },
+    {
+      "request_id": 3,
+      "start_time": 1765482695.8630614,
+      "latency": 2.1635453701019287,
+      "status": 200
+    },
+    {
+      "request_id": 4,
+      "start_time": 1765482695.863261,
+      "latency": 1.9325876235961914,
+      "status": 200
+    },
+    {
+      "request_id": 5,
+      "start_time": 1765482697.795883,
+      "latency": 1.906489610671997,
+      "status": 200
+    },
+    {
+      "request_id": 6,
+      "start_time": 1765482697.9060097,
+      "latency": 2.29601788520813,
+      "status": 200
+    },
+    {
+      "request_id": 7,
+      "start_time": 1765482698.026644,
+      "latency": 6.092696905136108,
+      "status": 200
+    },
+    {
+      "request_id": 8,
+      "start_time": 1765482699.702412,
+      "latency": 1.9896597862243652,
+      "status": 200
+    },
+    {
+      "request_id": 9,
+      "start_time": 1765482700.20205,
+      "latency": 1.510857343673706,
+      "status": 200
+    },
+    {
+      "request_id": 10,
+      "start_time": 1765482700.2216568,
+      "latency": 5.696820497512817,
+      "status": 200
+    },
+    {
+      "request_id": 11,
+      "start_time": 1765482701.6920974,
+      "latency": 2.2419726848602295,
+      "status": 200
+    },
+    {
+      "request_id": 12,
+      "start_time": 1765482701.7129335,
+      "latency": 1.899620532989502,
+      "status": 200
+    },
+    {
+      "request_id": 13,
+      "start_time": 1765482702.025639,
+      "latency": 5.892253398895264,
+      "status": 200
+    },
+    {
+      "request_id": 14,
+      "start_time": 1765482703.6125748,
+      "latency": 1.878096342086792,
+      "status": 200
+    },
+    {
+      "request_id": 15,
+      "start_time": 1765482703.934091,
+      "latency": 2.060816526412964,
+      "status": 200
+    },
+    {
+      "request_id": 16,
+      "start_time": 1765482704.1193643,
+      "latency": 5.801254510879517,
+      "status": 200
+    },
+    {
+      "request_id": 17,
+      "start_time": 1765482705.4907074,
+      "latency": 1.8119404315948486,
+      "status": 200
+    },
+    {
+      "request_id": 18,
+      "start_time": 1765482705.9184983,
+      "latency": 6.000896453857422,
+      "status": 200
+    },
+    {
+      "request_id": 19,
+      "start_time": 1765482705.9949276,
+      "latency": 1.898007869720459,
+      "status": 200
+    }
+  ]
+}
