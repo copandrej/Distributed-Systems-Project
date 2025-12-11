@@ -4,7 +4,7 @@ Agentic system for managing Kubernetes clusters through natural language interac
 
 Single AI agent that can monitor and manage distributed Kubernetes infrastructure using LLMs.
 
-Agent can execute kubectl commands, monitor cluster health (graphana, prometheus), and manage services (replication, configs) through a terminal-based chat interface.
+Agent can execute kubectl commands, monitor cluster health, and manage services (replication, configs) through a terminal-based chat interface.
 
 ## Architecture
 
@@ -43,8 +43,10 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ### Local Kubernetes
 
+To allow localhost access to NodePort services, create the cluster with the provided config:
+
 ```bash
-kind create cluster --name agent-cluster
+kind create cluster --name agent-cluster --config kind-config.yaml
 ```
 
 ### Set Up Ollama (Local LLM) if needed or connect to OpenRouter
@@ -60,6 +62,39 @@ docker exec -it ollama ollama pull qwn
 ```bash
 uv sync
 ```
+
+## Echo Service (Test Workload)
+
+A simple FastAPI service is included in `echo_service/` to test the agent's deployment capabilities.
+
+### Build and Deploy
+
+1. **Build the Docker image:**
+   ```bash
+   docker build -t echo-service:latest ./echo_service
+   ```
+
+2. **Load image into Kind cluster:**
+   ```bash
+   kind load docker-image echo-service:latest --name agent-cluster
+   ```
+
+3. **Deploy to Kubernetes:**
+   ```bash
+   kubectl apply -f echo_service/deployment.yaml
+   ```
+
+4. **Verify deployment:**
+   ```bash
+   kubectl get pods -l app=echo-service
+   ```
+
+5. **Access the service (Localhost):**
+   The service is exposed via `NodePort` 30080, which is mapped to localhost by the Kind config.
+   
+   ```bash
+   curl -X POST "http://localhost:30080/echo" -d '{"test": "data"}'
+   ```
 
 ## TODO
 - Define a more complex cluster with some configs
