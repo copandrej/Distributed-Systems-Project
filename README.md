@@ -1,4 +1,4 @@
-# Distributed Systems Project Report: Agentic Kubernetes Management
+# Distributed Systems Project: Agentic Kubernetes Management
 
 Agentic system for managing Kubernetes clusters through natural language interactions.
 
@@ -14,7 +14,9 @@ Agent can execute kubectl commands, monitor cluster health, and manage services 
 - **Interface**: Terminal-based chatbot for user interaction
 - **Implementation**: Simple Python app, uv for dependencies, modular, easy to extend as we will need for the master's thesis project later
 
-- Python 3.12
+## Prerequisites
+
+- Python 3.10+
 - Docker
 - kubectl CLI
 - Kind (Kubernetes in Docker), or any Kubernetes cluster with kubectl access
@@ -35,14 +37,11 @@ Agent: Scaling deployment... Now 3 replicas running.
 
 ## Installation
 
-### uv
+### Install uv (Optional)
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
-
-If you dont want to use uv, you can install dependencies with pip from pyproject.toml
-
 
 ### Local Kubernetes
 
@@ -52,7 +51,9 @@ To allow localhost access to NodePort services, create the cluster with the prov
 kind create cluster --name agent-cluster --config kind-config.yaml
 ```
 
-### Set Up Ollama (Local LLM) if needed or connect to OpenRouter (see .env.example)
+### Set Up LLM
+
+Set up Ollama (Local LLM) if needed or connect to OpenRouter (see `.env.example`).
 
 ```bash
 # Run Ollama in Docker
@@ -60,16 +61,26 @@ docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
 docker exec -it ollama ollama pull qwen3:8b
 ```
 
-# copy .env.example to .env and set your API keys and model preferences
+### Configure Environment
+
+Copy `.env.example` to `.env` and set your API keys and model preferences:
 
 ```bash
 cp .env.example .env
 ```
 
-### 4. Install Project Dependencies, or use pip
+### Install Project Dependencies
+
+Using uv:
 
 ```bash
 uv sync
+```
+
+Using pip:
+
+```bash
+pip install -r requirements.txt
 ```
 
 ## Echo Service (Test Workload)
@@ -109,7 +120,7 @@ A simple FastAPI service is included in `echo_service/` to test the agent's depl
    A load testing script is provided to evaluate the echo service's performance.
 
    ```bash
-   python load_test.py --url http://localhost:30080/echo --concurrency 5 --requests 20 --output latency_results.json
+   python load_test.py --concurrency 5 --requests 20 --output latency_results.json
    ```
 
 Tell the agent to increase the number of replicas of the echo service and run the load test again to see the performance improvement.
