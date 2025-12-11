@@ -1,28 +1,43 @@
 import os
 import subprocess
 from dotenv import load_dotenv
-
-# ai agentic stuff
 from crewai import Agent, Task, Crew
 from crewai.tools import BaseTool
+from pydantic import BaseModel, Field
 
-# environment, copy .env.example to .env and adjust before running
 load_dotenv()
+
+VERBOSE = False  # Set to False for clean output with just user and agent
+if VERBOSE:
+    tracing = True
+
+# Memory settings
+KEEP_MESSAGES = 5  # How many old messages to show as context
+KEEP_FULL_OUTPUTS = 2  # How many of those should include full tool outputs (most recent)
+# with small llms we need to keep this number low.
+# full outputs are long because of tool updates
+
+class KubectlInput(BaseModel):
+    command: str = Field(..., description="kubectl command without 'kubectl' prefix")
 
 
 class KubectlTool(BaseTool):
     name: str = "kubectl"
     description: str = (
-        "Executes kubectl commands and returns the actual output. "
-        "IMPORTANT: Always use this tool to run commands - never just describe what would happen. "
-        "Input format: the command without 'kubectl' prefix. "
-        "Examples: 'get nodes', 'get pods -A', 'describe node <name>'"
+        "Execute kubectl commands on the cluster. "
+        "Input: command without 'kubectl' prefix. "
+        "Examples: 'get pods', 'apply -f file.yaml', 'create deployment name --image=nginx'"
     )
+    args_schema: type[BaseModel] = KubectlInput
     
     def _run(self, command: str) -> str:
         try:
             result = subprocess.run(
-                f"kubectl {command}", shell=True, capture_output=True, text=True, timeout=30
+                f"kubectl {command}", 
+                shell=True, 
+                capture_output=True, 
+                text=True, 
+                timeout=30
             )
             return result.stdout if result.returncode == 0 else result.stderr
         except Exception as e:
@@ -41,34 +56,80 @@ def main():
     else:
         raise NotImplementedError()
     
-    # Create agent
     agent = Agent(
-        role="Kubernetes assistant",
-        goal="Execute kubectl commands and return actual results",
+        role="Kubernetes Assistant",
+        goal="Execute kubectl commands to help users manage their Kubernetes cluster",
         backstory=(
-            "You are a Kubernetes expert. When asked about clusters, you MUST use the kubectl tool "
-            "to get real data. Never describe what a command does - always execute it and show the output."
+            "You are a Kubernetes assistant with kubectl access. "
+            "WHEN TO USE KUBECTL TOOL:\n"
+            "- User asks to CHECK/GET/LIST/SHOW cluster resources → use kubectl\n"
+            "- User asks to CREATE/DEPLOY/RUN/SCALE/DELETE resources → use kubectl\n"
+            "- User says something is incorrect → use kubectl to verify\n"
+            "- User asks casual questions (who are you, thanks, hello) → answer naturally without tools\n\n"
+            "RULES:\n"
+            "- Never claim something worked without running kubectl to verify\n"
+            "- If you need information, check first with kubectl\n"
+            "- Never give instructions - execute commands yourself"
         ),
         tools=[KubectlTool()],
         llm=llm,
-        verbose=True
+        verbose=VERBOSE,
+        max_iter=15
     )
     
     print("Kubernetes Assistant (type 'exit' to quit)\n")
+    
+    conversation_history = []
     
     while True:
         query = input("You: ").strip()
         if query.lower() in ['exit', 'quit']:
             break
         
+        # Build context with smart truncation
+        context = ""
+        if conversation_history:
+            recent = conversation_history[-KEEP_MESSAGES:]
+            context_parts = []
+            
+            for i, h in enumerate(recent):
+                # For older messages, use heavily truncated version
+                # For recent messages (last KEEP_FULL_OUTPUTS), use full version
+                is_recent = i >= len(recent) - KEEP_FULL_OUTPUTS
+                agent_response = h['agent_full'] if is_recent else h['agent_short']
+                
+                context_parts.append(f"User: {h['user']}\nYou: {agent_response}")
+            
+            context = "Recent context:\n" + "\n".join(context_parts) + "\n\n"
+        
         task = Task(
-            description=f"Use the kubectl tool to: {query}. You MUST execute the command and return the actual output.",
-            expected_output="The actual command output from kubectl",
+            description=f"{context}Current request: {query}",
+            expected_output="A helpful response - use kubectl tool when dealing with cluster resources",
             agent=agent
         )
         
-        result = Crew(agents=[agent], tasks=[task], verbose=True).kickoff()
-        print(f"\nAgent: {result}\n")
+        crew = Crew(
+            agents=[agent], 
+            tasks=[task],
+            verbose=VERBOSE,
+            memory=False
+        )
+        
+        result = crew.kickoff()
+        result_str = str(result)
+        
+        # Store both short and full versions
+        conversation_history.append({
+            "user": query,
+            "agent_short": result_str[:100],  # Very short summary for old messages
+            "agent_full": result_str[:500]    # Longer version for recent messages
+        })
+        
+        # Trim history to prevent memory bloat
+        if len(conversation_history) > KEEP_MESSAGES + 2:  # Keep a bit extra in storage
+            conversation_history.pop(0)
+        
+        print(f"\nAgent: {result_str}\n")
 
 
 if __name__ == "__main__":
