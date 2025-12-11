@@ -9,4 +9,5 @@ dependencies = [
     "crewai-tools>=0.12.0",
     "python-dotenv>=1.0.0",
     "litellm>=1.0.0",
+    "aiohttp>=3.13.2",
 ]
